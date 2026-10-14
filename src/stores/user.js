@@ -53,6 +53,19 @@ export const useUserStore = defineStore('user', {
       const db = await getDb()
       await db.signInWithEmail(email)
     },
+    /** Email + password. Returns true when signed in; false when sign-up is waiting on email confirmation. */
+    async passwordAuth(email, password, isSignUp = false) {
+      setGuestMode(false)
+      this._init = null
+      const db = await getDb()
+      this.mode = db.kind
+      const session = isSignUp ? await db.signUpWithPassword(email, password) : await db.signInWithPassword(email, password)
+      if (!session) return false
+      this.session = session
+      await this.refreshProfile()
+      this.ready = true
+      return true
+    },
     async updateProfile(patch) {
       const db = await getDb()
       this.profile = await db.updateProfile(this.userId, patch)
