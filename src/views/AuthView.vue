@@ -110,7 +110,6 @@ async function guest() {
       <label class="form-label" for="name">Play as guest</label>
       <input id="name" v-model="name" class="form-control mb-2" placeholder="Traveller name (optional)" maxlength="32" />
       <button class="btn btn-pop w-100" :disabled="busy" @click="guest"><i class="bi bi-person-walking"></i> Continue as guest</button>
-      <p class="tiny text-muted mt-2 mb-0">Guest data stays in this browser. Nothing is sent anywhere.</p>
       </div>
     </div>
   </main>
