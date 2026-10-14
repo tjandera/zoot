@@ -3,7 +3,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMissionStore } from '../stores/mission.js'
 import { useUiStore } from '../stores/ui.js'
-import { loadCatalog } from '../lib/catalog.js'
+import { loadCatalog, placeById } from '../lib/catalog.js'
 import { fmtTime, fmtDuration } from '../lib/hours.js'
 import { rainLookup } from '../lib/weather.js'
 import { RAIN_LIMIT } from '../lib/planner.js'
@@ -11,6 +11,7 @@ import { STYLES } from '../data/origins.js'
 import TimeToGate from '../components/TimeToGate.vue'
 import BufferBar from '../components/BufferBar.vue'
 import WeatherChip from '../components/WeatherChip.vue'
+import PlacePhoto from '../components/PlacePhoto.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -113,7 +114,8 @@ const replans = [
             </div>
             <div class="zt-card p-3 stop-card">
               <div class="d-flex justify-content-between gap-2">
-                <div>
+                <PlacePhoto v-if="leg.kind === 'visit'" :place="placeById.get(leg.place_id)" />
+                <div class="flex-grow-1">
                   <div class="tiny text-muted fw-800 mono">
                     {{ fmtTime(leg.arrive_iso) }}<template v-if="leg.kind === 'visit'">–{{ fmtTime(leg.depart_iso) }} · stay {{ leg.stay_min }} min</template>
                     <template v-else> · must arrive by {{ fmtTime(leg.arrive_by) }}</template>

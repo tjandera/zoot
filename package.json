@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "seed:sql": "node scripts/gen-seed.mjs",
+    "fetch:images": "node scripts/fetch-images.mjs",
     "test:planner": "node scripts/test-planner.mjs"
   },
   "dependencies": {
