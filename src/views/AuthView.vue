@@ -7,8 +7,12 @@ const user = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const email = ref('')
+const password = ref('')
+const method = ref('password') // 'password' | 'link'
+const isSignUp = ref(false)
 const name = ref('')
 const sent = ref(false)
+const confirmSent = ref(false)
 const busy = ref(false)
 const error = ref('')
 
@@ -32,6 +36,24 @@ async function sendLink() {
   }
 }
 
+async function submitPassword() {
+  error.value = ''
+  busy.value = true
+  try {
+    const signedIn = await user.passwordAuth(email.value.trim(), password.value, isSignUp.value)
+    if (!signedIn) confirmSent.value = true
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    busy.value = false
+  }
+}
+
+function switchMethod(m) {
+  method.value = m
+  error.value = ''
+}
+
 async function guest() {
   busy.value = true
   await user.continueAsGuest(name.value.trim() || 'Field Traveller')
@@ -48,14 +70,36 @@ async function guest() {
       <h1 class="title mb-1">Board the quest</h1>
       <p class="text-muted">Your stamps, XP and passport follow your account.</p>
 
-      <form v-if="user.canUseEmail && !sent" @submit.prevent="sendLink" class="mb-3">
-        <label class="form-label" for="email">Email magic link</label>
-        <input id="email" v-model="email" type="email" required class="form-control mb-2" placeholder="you@smu.edu.sg" autocomplete="email" />
-        <button class="btn btn-primary w-100" :disabled="busy || !email">Send me a link</button>
-      </form>
-      <div v-else-if="sent" class="alert alert-success">
+      <div v-if="sent" class="alert alert-success">
         <i class="bi bi-envelope-check"></i> Check <b>{{ email }}</b> and tap the link on this device.
       </div>
+      <div v-else-if="confirmSent" class="alert alert-success">
+        <i class="bi bi-envelope-check"></i> Account created. Check <b>{{ email }}</b> to confirm it, then sign in.
+      </div>
+      <template v-else-if="user.canUseEmail">
+        <div class="btn-group w-100 mb-3" role="group" aria-label="Sign-in method">
+          <button type="button" class="btn btn-sm" :class="method === 'password' ? 'btn-dark' : 'btn-outline-dark'" @click="switchMethod('password')">Password</button>
+          <button type="button" class="btn btn-sm" :class="method === 'link' ? 'btn-dark' : 'btn-outline-dark'" @click="switchMethod('link')">Magic link</button>
+        </div>
+
+        <form v-if="method === 'password'" @submit.prevent="submitPassword" class="mb-3">
+          <label class="form-label" for="email">Email</label>
+          <input id="email" v-model="email" type="email" required class="form-control mb-2" placeholder="you@smu.edu.sg" autocomplete="email" />
+          <label class="form-label" for="password">Password</label>
+          <input id="password" v-model="password" type="password" required minlength="6" class="form-control mb-2" placeholder="At least 6 characters" :autocomplete="isSignUp ? 'new-password' : 'current-password'" />
+          <button class="btn btn-primary w-100" :disabled="busy || !email || password.length < 6">{{ isSignUp ? 'Create account' : 'Sign in' }}</button>
+          <p class="small text-center mt-2 mb-0">
+            {{ isSignUp ? 'Already have an account?' : 'New here?' }}
+            <button type="button" class="btn btn-link btn-sm p-0 align-baseline" @click="isSignUp = !isSignUp; error = ''">{{ isSignUp ? 'Sign in' : 'Create an account' }}</button>
+          </p>
+        </form>
+
+        <form v-else @submit.prevent="sendLink" class="mb-3">
+          <label class="form-label" for="email">Email magic link</label>
+          <input id="email" v-model="email" type="email" required class="form-control mb-2" placeholder="you@smu.edu.sg" autocomplete="email" />
+          <button class="btn btn-primary w-100" :disabled="busy || !email">Send me a link</button>
+        </form>
+      </template>
       <div v-else class="alert alert-info tiny mb-3">
         <i class="bi bi-info-circle"></i> Email sign-in turns on when <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> are set. Guest mode saves on this device.
       </div>

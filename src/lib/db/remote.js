@@ -31,6 +31,13 @@ export function createRemoteDb() {
     async signInWithEmail(email) {
       must(await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: `${location.origin}/auth` } }))
     },
+    async signInWithPassword(email, password) {
+      return must(await sb.auth.signInWithPassword({ email, password })).session
+    },
+    async signUpWithPassword(email, password) {
+      // session is null when "Confirm email" is on; the user must click the email link first.
+      return must(await sb.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/auth` } })).session
+    },
     async signInWithGoogle() {
       must(await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${location.origin}/auth` } }))
     },

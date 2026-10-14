@@ -45,6 +45,12 @@ export const localDb = {
   async signInWithEmail() {
     throw new Error('Email sign-in needs Supabase keys. Use guest mode for now.')
   },
+  async signInWithPassword() {
+    throw new Error('Password sign-in needs Supabase keys. Use guest mode for now.')
+  },
+  async signUpWithPassword() {
+    throw new Error('Password sign-up needs Supabase keys. Use guest mode for now.')
+  },
   async signOut() {
     localStorage.removeItem(K.session)
   },
