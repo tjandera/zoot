@@ -1,8 +1,8 @@
 import { reactive } from 'vue'
 import destination from '@turf/destination'
 import bearing from '@turf/bearing'
+import distance from '@turf/distance'
 import { point } from '@turf/helpers'
-import { distanceM } from './travel.js'
 
 /**
  * Shared traveller position. Real GPS via watchPosition, or fake GPS for demos
@@ -22,6 +22,8 @@ export const geo = reactive({
 
 let watchId = null
 
+const distanceM = (a, b) => distance(point([a.lng, a.lat]), point([b.lng, b.lat]), { units: 'kilometers' }) * 1000
+
 function readFake() {
   try { return localStorage.getItem('zoot.fakeGps') === '1' } catch { return false }
 }
@@ -33,7 +35,7 @@ export function hasFix() {
 export function startGps() {
   if (watchId != null || geo.fake) return
   if (!('geolocation' in navigator)) {
-    geo.error = 'This browser has no geolocation. Turn on fake GPS in /dev.'
+    geo.error = 'This browser has no geolocation. Use demo walk instead.'
     return
   }
   watchId = navigator.geolocation.watchPosition(

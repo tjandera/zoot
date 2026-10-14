@@ -50,7 +50,6 @@ const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
             <!-- <p class="lede">Zoot turns those hours into a timed walking quest across the city. Planned to the minute, played on the street, and it always gets you back to the gate.</p> -->
             <div class="d-flex flex-wrap gap-3 align-items-center">
               <button class="btn btn-pop btn-lg" @click="router.push('/plan')"><i class="bi bi-play-fill"></i> Start a layover</button>
-              <RouterLink to="/place/supertree-grove" class="btn btn-soft btn-lg">Peek at a stop</RouterLink>
             </div>
             <div class="stats">
               <div><b>89</b><span>Singapore stops</span></div>

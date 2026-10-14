@@ -1,11 +1,10 @@
 import * as THREE from 'three'
 import { MercatorCoordinate } from 'maplibre-gl'
 import { createTraveller, createGhost, AVATAR } from './avatar.js'
-import { createTotem, createSeal, createToken, createGate } from './markers.js'
 
 /**
  * MapLibre custom layer that renders the Three.js world (Matthew's lane):
- * avatar, stamp totems, chopped seals, sidequest tokens and the home gate.
+ * the traveller avatar (demo build: no stop or sidequest markers).
  *
  * Scene axes: x = east (m), y = up (m), z = south (m), relative to `origin`.
  * Objects are scaled with zoom so they keep a readable, game-like screen size.
@@ -17,8 +16,6 @@ export class WorldLayer {
     this.type = 'custom'
     this.renderingMode = '3d'
     this.origin = origin
-    this.stops = new Map()
-    this.tokens = new Map()
     this.avatarPos = null
     this.heading = 0
     this.moving = false
@@ -79,53 +76,6 @@ export class WorldLayer {
     this.avatarRig.rotation.y = cur + delta * 0.25
   }
 
-  /** stops: [{ key, lng, lat, status: 'next'|'pending'|'stamped'|'return' }] */
-  setStops(stops) {
-    if (!this.scene) return
-    const keep = new Set()
-    for (const s of stops) {
-      const key = `${s.key}:${s.status}`
-      keep.add(key)
-      if (this.stops.has(key)) continue
-      const obj = s.status === 'stamped' ? createSeal() : s.status === 'return' ? createGate() : createTotem(s.status)
-      obj.position.copy(this.toLocal(s.lng, s.lat))
-      obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false })
-      this.scene.add(obj)
-      this.stops.set(key, obj)
-    }
-    for (const [key, obj] of this.stops) {
-      if (!keep.has(key)) {
-        this.scene.remove(obj)
-        dispose(obj)
-        this.stops.delete(key)
-      }
-    }
-  }
-
-  /** tokens: [{ key, lng, lat, eligible }] */
-  setTokens(tokens) {
-    if (!this.scene) return
-    const keep = new Set()
-    tokens.forEach((t, i) => {
-      const key = `${t.key}:${t.eligible}`
-      keep.add(key)
-      if (this.tokens.has(key)) return
-      const obj = createToken(t.eligible)
-      obj.position.copy(this.toLocal(t.lng, t.lat))
-      obj.userData.phase = i * 1.3
-      obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false })
-      this.scene.add(obj)
-      this.tokens.set(key, obj)
-    })
-    for (const [key, obj] of this.tokens) {
-      if (!keep.has(key)) {
-        this.scene.remove(obj)
-        dispose(obj)
-        this.tokens.delete(key)
-      }
-    }
-  }
-
   render(gl, args) {
     const t = (performance.now() - this.t0) / 1000
     // Keep objects a constant-ish size on screen: big and toy-like when zoomed in, not tiny when zoomed out.
@@ -134,14 +84,6 @@ export class WorldLayer {
     this.avatar.userData.update(t, this.moving)
     this.ghost.userData.update?.(t, this.moving)
     syncPose(this.avatar, this.ghost)
-    for (const obj of this.stops.values()) {
-      obj.scale.setScalar(22 * k)
-      obj.userData.update?.(t)
-    }
-    for (const obj of this.tokens.values()) {
-      obj.scale.setScalar(15 * k)
-      obj.userData.update?.(t, obj.userData.phase)
-    }
 
     const m = new THREE.Matrix4().fromArray(args.defaultProjectionData.mainMatrix)
     this.camera.projectionMatrix = m.multiply(this.base)
@@ -151,9 +93,7 @@ export class WorldLayer {
   }
 
   onRemove() {
-    for (const obj of [...this.stops.values(), ...this.tokens.values(), this.avatarRig]) dispose(obj)
-    this.stops.clear()
-    this.tokens.clear()
+    dispose(this.avatarRig)
     this.renderer?.dispose()
   }
 }

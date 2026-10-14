@@ -7,7 +7,6 @@ import { tick } from '../lib/clock.js'
 const ui = useUiStore()
 const hour = computed(() => ui.weather?.hours?.find((h) => tick.value >= h.ms && tick.value < h.ms + 3600000))
 const info = computed(() => {
-  if (ui.forceRain) return { icon: 'bi-cloud-rain-heavy-fill', label: 'Heavy rain (dev)', prob: 90, temp: null }
   if (!ui.weather) return null
   const d = describeCode(ui.weather.current.code)
   return { ...d, prob: hour.value?.prob ?? 0, temp: Math.round(ui.weather.current.temp) }

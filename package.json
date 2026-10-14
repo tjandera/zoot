@@ -6,14 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "seed:sql": "node scripts/gen-seed.mjs",
-    "test:planner": "node scripts/test-planner.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.1",
     "@turf/bearing": "^7.4.0",
-    "@turf/circle": "^7.4.0",
     "@turf/destination": "^7.4.0",
     "@turf/distance": "^7.4.0",
     "@turf/helpers": "^7.4.0",

@@ -1,25 +1,20 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
 import { useTripStore } from '../stores/trip.js'
-import { useMissionStore } from '../stores/mission.js'
 import { useUserStore } from '../stores/user.js'
 import { useUiStore } from '../stores/ui.js'
 import { ORIGINS, INTERESTS, STYLES } from '../data/origins.js'
-import { computeBudget } from '../lib/planner.js'
+import { computeBudget } from '../lib/budget.js'
 import { fmtDuration, fmtTime } from '../lib/hours.js'
 import { now, tick } from '../lib/clock.js'
 import BufferBar from '../components/BufferBar.vue'
 import WeatherChip from '../components/WeatherChip.vue'
 
-/** Clock form (Kayra: itinerary engine, lib/planner.js). */
+/** Clock form (Kayra). Demo build: the form and time budget work; building the itinerary is not wired up yet. */
 const trip = useTripStore()
-const mission = useMissionStore()
 const user = useUserStore()
 const ui = useUiStore()
-const router = useRouter()
 const d = trip.draft
-const planning = ref(false)
 
 onMounted(() => { if (!ui.weather) ui.loadWeather() })
 
@@ -35,17 +30,8 @@ function toggleInterest(id) {
   i >= 0 ? d.interests.splice(i, 1) : d.interests.push(id)
 }
 
-async function submit() {
-  planning.value = true
-  try {
-    const saved = await trip.saveTrip()
-    const m = await mission.planFromTrip(saved)
-    if (m) router.push(`/mission/${m.id}`)
-  } catch (err) {
-    ui.toast(err.message, 'danger')
-  } finally {
-    planning.value = false
-  }
+function submit() {
+  ui.toast('Itinerary builder is coming soon. Explore the 3D map for now.', 'dark', 4000)
 }
 </script>
 
@@ -105,7 +91,7 @@ async function submit() {
         </div>
       </section>
 
-      <section class="zt-card p-3">
+      <!-- <section class="zt-card p-3">
         <div class="row g-3">
           <div class="col-sm-6">
             <label class="form-label">Energy</label>
@@ -137,25 +123,17 @@ async function submit() {
           Travel style: <span class="zt-pill"><i class="bi" :class="style.icon"></i> {{ style.label }}</span>
           <RouterLink to="/onboard" class="ms-1">change</RouterLink>
         </p>
-      </section>
+      </section> -->
 
       <div v-if="tooShort" class="alert alert-warning mb-0">
         <i class="bi bi-exclamation-triangle"></i> With these buffers you’d have {{ Math.max(0, budget.usable_min) }} minutes outside. Zoot won’t plan a trip that risks your flight. Stay airside and explore the terminal.
       </div>
 
-      <button class="btn btn-primary btn-lg" :disabled="planning || tooShort || !d.interests.length">
+      <button class="btn btn-primary btn-lg" :disabled="tooShort || !d.interests.length">
         <i class="bi bi-magic"></i> Build my quest
       </button>
     </form>
 
-    <div v-if="planning" class="planning-overlay" role="alert" aria-live="assertive">
-      <div class="zt-card p-4 text-center">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <div class="fw-800">{{ mission.statusText || 'Plotting your quest…' }}</div>
-        <div class="tiny text-muted mt-1">Turf clusters · MRT matrix · Open-Meteo · Groq</div>
-      </div>
-    </div>
-    <div v-if="mission.refusal && !planning" class="alert alert-danger mt-3"><b>Planner refused:</b> {{ mission.refusal }}</div>
   </main>
 </template>
 
@@ -165,6 +143,4 @@ async function submit() {
 .origin i { font-size: 1.5rem; }
 .origin.active { background: var(--zt-yellow); color: #111; box-shadow: 0 4px 0 var(--zt-shadow-color); transform: translateY(-3px); }
 .hours-num { font-family: var(--zt-font-display); font-size: 2.4rem; line-height: 1; }
-.planning-overlay { position: fixed; inset: 0; z-index: 1500; display: grid; place-items: center; background: rgba(17, 17, 17, 0.55); padding: 16px; }
-.planning-overlay .zt-card { box-shadow: 8px 8px 0 var(--zt-shadow-color); }
 </style>

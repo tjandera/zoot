@@ -1,9 +1,7 @@
 <script setup>
 const items = [
-  { to: '/map', icon: 'bi-geo-alt-fill', label: 'Map' },
-  { to: '/mission', icon: 'bi-signpost-split-fill', label: 'Mission' },
-  { to: '/passport', icon: 'bi-journal-bookmark-fill', label: 'Passport' },
-  { to: '/me', icon: 'bi-person-circle', label: 'Me' }
+  { to: '/plan', icon: 'bi-signpost-split-fill', label: 'Plan' },
+  { to: '/map', icon: 'bi-geo-alt-fill', label: 'Map' }
 ]
 </script>
 

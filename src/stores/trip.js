@@ -1,15 +1,12 @@
 import { defineStore } from 'pinia'
 import { ORIGINS } from '../data/origins.js'
-import { getDb } from '../lib/db/index.js'
 import { now } from '../lib/clock.js'
 import { toSgLocalInput, fromSgLocalInput } from '../lib/hours.js'
-import { useUserStore } from './user.js'
 
-/** Planner form draft + saved trip rows (Kayra: form + trips table). */
+/** Planner form draft (Kayra). The itinerary engine is not part of this demo build. */
 export const useTripStore = defineStore('trip', {
   state: () => ({
-    draft: defaultDraft(),
-    current: null
+    draft: defaultDraft()
   }),
   getters: {
     origin: (s) => ORIGINS.find((o) => o.id === s.draft.originId) || ORIGINS[0],
@@ -23,25 +20,6 @@ export const useTripStore = defineStore('trip', {
     },
     syncHoursFromReturn() {
       this.draft.hours = Math.max(1, Math.round(((this.mustReturnMs - now()) / 3600e3) * 2) / 2)
-    },
-    async saveTrip() {
-      const user = useUserStore()
-      const db = await getDb()
-      const d = this.draft
-      this.current = await db.saveTrip({
-        user_id: user.userId,
-        origin: { ...this.origin },
-        start_at: new Date(now()).toISOString(),
-        must_return_at: new Date(this.mustReturnMs).toISOString(),
-        style: user.profile?.style || 'budget',
-        interests: [...d.interests],
-        energy: d.energy,
-        indoorPref: d.indoorPref,
-        maxWalk: d.maxWalk,
-        partySize: d.partySize,
-        cleared: d.cleared
-      })
-      return this.current
     }
   }
 })

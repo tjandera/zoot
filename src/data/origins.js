@@ -33,20 +33,3 @@ export const STYLES = {
   conservative: { label: 'Conservative', icon: 'bi-shield-fill-check', blurb: 'Fewer stops, big buffers, indoor-friendly.', color: '#fff4c2', on: '#111111' }
 }
 
-/** Passport pages, in book order. Colours are the chop ink per area. */
-export const AREAS = [
-  { id: 'Changi', ink: '#111111', glyph: '✈' },
-  { id: 'Marina Bay', ink: '#e0245e', glyph: '◈' },
-  { id: 'Civic District', ink: '#d93a00', glyph: '⚖' },
-  { id: 'Chinatown', ink: '#c1121f', glyph: '龍' },
-  { id: 'Tiong Bahru', ink: '#111111', glyph: '◐' },
-  { id: 'Kampong Glam', ink: '#b07d00', glyph: '☾' },
-  { id: 'Little India', ink: '#e0245e', glyph: '✿' },
-  { id: 'Orchard', ink: '#d93a00', glyph: '❦' },
-  { id: 'Tanglin', ink: '#111111', glyph: '❀' },
-  { id: 'East Coast', ink: '#b07d00', glyph: '≈' },
-  { id: 'HarbourFront', ink: '#c1121f', glyph: '⚓' },
-  { id: 'Sentosa', ink: '#e0245e', glyph: '☀' },
-  { id: 'West', ink: '#d93a00', glyph: '⛩' },
-  { id: 'North', ink: '#111111', glyph: '♣' }
-]

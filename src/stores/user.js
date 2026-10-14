@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { getDb, isGuestMode, setGuestMode } from '../lib/db/index.js'
 import { HAS_SUPABASE } from '../lib/config.js'
-import { levelFor, titleFor } from '../lib/xp.js'
 
 /** Session + profile (Steven's lane). */
 export const useUserStore = defineStore('user', {
@@ -10,8 +9,6 @@ export const useUserStore = defineStore('user', {
     isAuthed: (s) => Boolean(s.session?.user),
     userId: (s) => s.session?.user?.id || null,
     needsOnboarding: (s) => Boolean(s.session?.user) && !s.profile?.style,
-    level: (s) => levelFor(s.profile?.xp || 0),
-    title() { return titleFor(this.level.level) },
     canUseEmail: () => HAS_SUPABASE
   },
   actions: {
