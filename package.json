@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "seed:sql": "node scripts/gen-seed.mjs",
-    "test:planner": "node scripts/test-planner.mjs"
+    "test:planner": "node scripts/test-planner.mjs",
+    "routes:gen": "node --env-file=.env scripts/gen-routes.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.1",

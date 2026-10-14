@@ -3,9 +3,10 @@ import { readFileSync } from 'node:fs'
 import { planDeterministic } from '../src/lib/planner.js'
 import { fmtTime } from '../src/lib/hours.js'
 import { validateMission } from '../src/lib/itinerarySchema.js'
-import { mrtRunning } from '../src/lib/travel.js'
+import { mrtRunning, setWalkMatrix } from '../src/lib/travel.js'
 
 const catalog = JSON.parse(readFileSync(new URL('../src/data/places.sg.json', import.meta.url)))
+setWalkMatrix(JSON.parse(readFileSync(new URL('../src/data/walk-matrix.sg.json', import.meta.url))))
 const T3 = { label: 'Changi Airport T3', kind: 'airport', lat: 1.3563, lng: 103.9866 }
 const start = Date.parse('2026-09-25T02:00:00Z') // 10:00 SGT
 

@@ -1,9 +1,11 @@
 import distance from '@turf/distance'
 import { point } from '@turf/helpers'
+import { pairKey } from './polyline.js'
 
 /**
  * Travel-time model. Groq never produces minutes; this file does.
- *   walk  = Turf great-circle distance × 1.3 detour ÷ 80 m/min
+ *   walk  = OneMap street-network walk time when the pair is in the walk matrix
+ *           (npm run routes:gen), else Turf great-circle distance × 1.3 detour ÷ 80 m/min
  *   mrt   = walk to nearest hub + 4 min wait + graph ride (+4 min per line change) + walk from hub
  *   taxi  = distance × 1.35 ÷ 28 km/h + 6 min pickup (only when no MRT hub is walkable)
  * The MRT graph is a small static slice of the real network, enough for
@@ -124,7 +126,22 @@ export function distanceM(a, b) {
   return distance(pt(a), pt(b), { units: 'kilometers' }) * 1000
 }
 
+// { "lat,lng|lat,lng": [metres, seconds] } from OneMap. Registered by catalog.js (and the
+// test script) so this file stays importable from plain Node without JSON imports.
+let walkMatrix = {}
+export function setWalkMatrix(m) {
+  walkMatrix = m || {}
+}
+
+/** Real walking route between two points if we have it: { metres, seconds } or null. */
+export function walkRoute(a, b) {
+  const hit = walkMatrix[pairKey(a, b).key]
+  return hit ? { metres: hit[0], seconds: hit[1] } : null
+}
+
 export function walkMinutes(a, b) {
+  const real = walkRoute(a, b)
+  if (real) return Math.max(1, Math.round(real.seconds / 60))
   return Math.max(1, Math.round((distanceM(a, b) * DETOUR) / WALK_M_PER_MIN))
 }
 
@@ -165,7 +182,8 @@ export function travel(a, b, opts = {}) {
   const maxWalk = Math.min(opts.maxWalk ?? MRT_THRESHOLD_MIN, MRT_THRESHOLD_MIN)
   const walk = walkMinutes(a, b)
   const distance_m = Math.round(distanceM(a, b))
-  const onFoot = { mode: 'walk', minutes: walk, walk_min: walk, distance_m, detail: `${distance_m} m on foot` }
+  const street_m = walkRoute(a, b)?.metres
+  const onFoot = { mode: 'walk', minutes: walk, walk_min: walk, distance_m, detail: `${street_m ?? distance_m} m on foot` }
   if (walk <= maxWalk) return onFoot
 
   const t = mrtRunning(opts.atMs) ? transit(a, b) : null

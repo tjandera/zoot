@@ -36,9 +36,9 @@ function devApi() {
 }
 
 export default defineConfig(({ mode }) => {
-  // Expose non-VITE_ keys (GROQ_API_KEY) to the dev API handlers only.
+  // Expose non-VITE_ keys (Groq, OneMap) to the dev API handlers only.
   const env = loadEnv(mode, process.cwd(), '')
-  for (const k of ['GROQ_API_KEY', 'GROQ_MODEL']) if (env[k] && !process.env[k]) process.env[k] = env[k]
+  for (const k of ['GROQ_API_KEY', 'GROQ_MODEL', 'ONEMAP_TOKEN', 'ONEMAP_EMAIL', 'ONEMAP_PASSWORD']) if (env[k] && !process.env[k]) process.env[k] = env[k]
 
   return {
     plugins: [vue(), devApi()],

@@ -1,7 +1,10 @@
 import { shallowRef } from 'vue'
 import bundled from '../data/places.sg.json'
+import walkMatrix from '../data/walk-matrix.sg.json'
 import { getDb } from './db/index.js'
-import { nearestHub } from './travel.js'
+import { nearestHub, setWalkMatrix } from './travel.js'
+
+setWalkMatrix(walkMatrix)
 
 /**
  * Place catalog. Supabase `places` is the source of truth when connected;
