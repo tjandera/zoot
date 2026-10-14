@@ -12,6 +12,7 @@ const routes = [
   { path: '/onboard', name: 'onboard', component: () => import('../views/OnboardView.vue'), meta: { auth: true } },
   { path: '/plan', name: 'plan', component: () => import('../views/PlanView.vue'), meta: { auth: true, onboarded: true, nav: true } },
   { path: '/map', name: 'map', component: () => import('../views/MapView.vue'), meta: { auth: true, nav: true } },
+  { path: '/me', name: 'me', component: () => import('../views/ProfileView.vue'), meta: { auth: true, nav: true } },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

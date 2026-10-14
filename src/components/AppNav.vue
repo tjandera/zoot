@@ -1,7 +1,8 @@
 <script setup>
 const items = [
   { to: '/plan', icon: 'bi-signpost-split-fill', label: 'Plan' },
-  { to: '/map', icon: 'bi-geo-alt-fill', label: 'Map' }
+  { to: '/map', icon: 'bi-geo-alt-fill', label: 'Map' },
+  { to: '/me', icon: 'bi-person-circle', label: 'Me' }
 ]
 </script>
 
