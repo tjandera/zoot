@@ -1,6 +1,8 @@
 import circle from '@turf/circle'
 import { point } from '@turf/helpers'
 import { travel } from '../lib/travel.js'
+import { now } from '../lib/clock.js'
+import { legShape, liveShape } from './routeShapes.js'
 
 /**
  * GeoJSON layers drawn by MapLibre under the Three.js world:
@@ -36,7 +38,7 @@ export function addQuestLayers(map, { dark = false, beforeId } = {}) {
     id: 'zt-route', type: 'line', source: 'zt-route',
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: {
-      'line-color': ['match', ['get', 'mode'], 'mrt', c.mrt, 'taxi', c.taxi, c.walk],
+      'line-color': ['match', ['get', 'mode'], ['mrt', 'bus'], c.mrt, 'taxi', c.taxi, c.walk],
       'line-width': ['interpolate', ['linear'], ['zoom'], 12, 2.5, 17, 7],
       'line-opacity': ['case', ['get', 'active'], 1, 0.7],
       'line-dasharray': DASH_SEQUENCE[0]
@@ -55,6 +57,8 @@ export function addQuestLayers(map, { dark = false, beforeId } = {}) {
 /**
  * Route from the traveller → every pending stop → home. Each segment keeps its travel mode.
  * The segment the traveller is on is `active` (bold); later ones are faded.
+ * Segments follow real streets/transit lines (OneMap) once their shape is known,
+ * and are straight lines until then or when OneMap is unavailable.
  */
 export function routeGeoJSON(mission, here) {
   if (!mission) return EMPTY
@@ -64,12 +68,18 @@ export function routeGeoJSON(mission, here) {
   pending.forEach((l, i) => {
     if (prev) {
       // The live segment uses how you'd travel from *here*, not the planned leg from the last stop.
-      const mode = i === 0 && here ? travel(here, l, { maxWalk: mission.prefs?.maxWalk, style: mission.style }).mode : l.travel_mode
-      features.push({
-        type: 'Feature',
-        properties: { mode, active: i === 0 },
-        geometry: { type: 'LineString', coordinates: [[prev.lng, prev.lat], [l.lng, l.lat]] }
-      })
+      const live = i === 0 && here
+      const mode = live ? travel(here, l, { maxWalk: mission.prefs?.maxWalk, style: mission.style }).mode : l.travel_mode
+      const atMs = live ? now() : Date.parse(l.arrive_iso) - l.travel_min * 60000
+      const segments = (live ? liveShape(here, l, mode, atMs) : legShape(prev, l, mode, atMs)) ||
+        [{ mode, coordinates: [[prev.lng, prev.lat], [l.lng, l.lat]] }]
+      for (const s of segments) {
+        features.push({
+          type: 'Feature',
+          properties: { mode: s.mode, active: i === 0 },
+          geometry: { type: 'LineString', coordinates: s.coordinates }
+        })
+      }
     }
     prev = l
   })

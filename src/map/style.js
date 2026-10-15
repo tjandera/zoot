@@ -34,7 +34,7 @@ export function questStyle({ dark = false } = {}) {
     name: 'Zoot Toy City',
     glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
     sources: {
-      omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '© OpenStreetMap contributors · OpenFreeMap' }
+      omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: '© OpenStreetMap contributors · OpenFreeMap · Routes © OneMap, Singapore Land Authority' }
     },
     sky: c.sky,
     light: { anchor: 'map', color: '#ffffff', intensity: dark ? 0.25 : 0.38, position: [1.3, 215, 35] },

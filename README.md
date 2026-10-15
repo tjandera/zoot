@@ -27,6 +27,8 @@ Copy `.env.example` to `.env` locally, and add the same keys in Vercel → Proje
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | browser | Auth (magic link), Postgres, RLS. Public by design. |
 | `GROQ_API_KEY` | `/api/*` only (server) | Groq picks places and writes copy. **Never prefix with `VITE_`.** |
 | `GROQ_MODEL` | `/api/*` | Defaults to `llama-3.3-70b-versatile`. |
+| `ONEMAP_EMAIL`, `ONEMAP_PASSWORD` | `/api/route`, `npm run routes:gen` | OneMap account; the server fetches and renews the routing token. **Never prefix with `VITE_`.** |
+| `ONEMAP_TOKEN` | same | Optional ready-made OneMap token (lasts ~3 days); used until it expires. |
 | `VITE_DEV_PANEL` | browser | `1` shows `/dev` and demo walk (fake GPS) in production. **Set it on the grading deployment.** |
 
 `npm run dev` mounts the Vercel functions in `/api` through a small Vite plugin, so Groq works locally with the key in `.env`. `npm run preview` does not serve `/api`, so there the app uses the offline planner.
@@ -58,6 +60,7 @@ Copy `.env.example` to `.env` locally, and add the same keys in Vercel → Proje
 ```
 
 - **Groq never produces minutes or coordinates.** It returns ids and copy; `sequencePicks()` times every leg with Turf and the MRT graph. Ids outside the catalog slice, extra fields such as `travel_min`, or a wrong schema are all rejected (`src/lib/itinerarySchema.js`).
+- **Walking times are real street routes.** `npm run routes:gen` asks OneMap for every place pair within 2 km and writes `src/data/walk-matrix.sg.json` (metres, seconds → `travel.js`) and `walk-geometry.sg.json` (map lines). Pairs outside the matrix fall back to straight-line × 1.3. On the map, MRT/taxi legs and the live "you → next stop" segment come from `/api/route`; without OneMap keys the path is drawn straight.
 - **The planner refuses** rather than risk the flight: fewer than 60 usable minutes, no place that fits, or a place that can't be left in time to make `arrive_by` all get a refusal.
 - **Mid-walk replans** (*I'm behind*, *Less walking*, *Swap next stop*, *Rain plan*) keep stamped legs and replan from the traveller's current position and time.
 
@@ -115,7 +118,7 @@ Where to change things: CSS tokens live at the top of `src/styles/app.css` (ligh
 
 ## Deploy to Vercel
 
-Import the repo into Vercel (the framework is detected as Vite; `vercel.json` adds the SPA rewrite). Add the environment variables above, including `VITE_DEV_PANEL=1` for the grading build, then deploy. `/api/plan` and `/api/summary` deploy automatically as Node functions.
+Import the repo into Vercel (the framework is detected as Vite; `vercel.json` adds the SPA rewrite). Add the environment variables above, including `VITE_DEV_PANEL=1` for the grading build, then deploy. `/api/plan`, `/api/summary` and `/api/route` deploy automatically as Node functions.
 
 ## Scope status
 
