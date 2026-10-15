@@ -50,8 +50,10 @@ create table if not exists public.places (
   captions text[] not null default '{}',
   safety_notes text,
   image_url text,
+  image_credit text,
   embed_url text
 );
+alter table public.places add column if not exists image_credit text;
 
 -- ── Trips, missions, legs ───────────────────────────────────────────────
 create table if not exists public.trips (

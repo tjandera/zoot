@@ -1,9 +1,9 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 /**
  * Procedural poster art for a place in the Zoot palette: sunburst, outlined skyline, category icon.
- * Replace with a real photo by setting `image_url` in the places table (Hulbert's content lane).
+ * Shows the real photo instead when `image_url` is set (`npm run fetch:images`).
  */
 const props = defineProps({ place: { type: Object, required: true }, height: { type: Number, default: 160 }, rounded: { type: Boolean, default: true } })
 
@@ -23,13 +23,16 @@ const ICONS = {
 const seed = computed(() => [...props.place.id].reduce((s, ch) => s + ch.charCodeAt(0), 0))
 const scheme = computed(() => SCHEMES[seed.value % SCHEMES.length])
 const icon = computed(() => ICONS[props.place.tags?.[0]] || 'bi-geo-alt-fill')
+// A dead photo link falls back to the poster art.
+const broken = ref(false)
+watch(() => props.place.image_url, () => { broken.value = false })
 const bars = computed(() => Array.from({ length: 9 }, (_, i) => 22 + ((seed.value * (i + 3)) % 48)))
 </script>
 
 <template>
   <div class="art" :class="{ rounded }" role="img" :aria-label="place.name"
     :style="{ height: height + 'px', '--bg': scheme[0], '--ray': scheme[1], '--disc': scheme[2], '--spark': scheme[3] }">
-    <img v-if="place.image_url" :src="place.image_url" :alt="place.name" class="photo" loading="lazy" />
+    <img v-if="place.image_url && !broken" :src="place.image_url" :alt="place.name" class="photo" loading="lazy" @error="broken = true" />
     <template v-else>
       <div class="skyline">
         <span v-for="(h, i) in bars" :key="i" :style="{ height: h + '%' }"></span>
