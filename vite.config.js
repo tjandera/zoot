@@ -11,7 +11,6 @@ export default defineConfig(() => {
         output: {
           manualChunks(id) {
             if (id.includes('maplibre-gl')) return 'maplibre'
-            if (id.includes('node_modules/three')) return 'three'
             if (id.includes('@supabase')) return 'supabase'
           }
         }

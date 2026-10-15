@@ -92,7 +92,7 @@ export function questStyle({ dark = false } = {}) {
         id: 'buildings-3d', type: 'fill-extrusion', source: 'omt', 'source-layer': 'building', minzoom: 14.5,
         paint: {
           'fill-extrusion-color': ['interpolate', ['linear'], ['coalesce', ['get', 'render_height'], 8], 0, c.b0, 30, c.b1, 90, c.b2, 200, c.b3],
-          // Toy-city heights: √h × 4 turns a 250 m tower into ~63 m so the traveller is never swallowed.
+          // Toy-city heights: √h × 4 turns a 250 m tower into ~63 m so the skyline stays toy-like.
           'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 14.5, 0, 15.2, ['*', ['sqrt', ['coalesce', ['get', 'render_height'], 8]], 4]],
           'fill-extrusion-base': ['*', ['sqrt', ['coalesce', ['get', 'render_min_height'], 0]], 4],
           'fill-extrusion-opacity': c.bOpacity,

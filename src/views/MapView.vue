@@ -3,32 +3,17 @@ import { onMounted, ref } from 'vue'
 import QuestMap from '../map/QuestMap.vue'
 import WeatherChip from '../components/WeatherChip.vue'
 import { useUiStore } from '../stores/ui.js'
-import { geo, setFake, teleport } from '../lib/geo.js'
 
-/**
- * Demo build: the 3D toy city in explore mode. The traveller starts at Marina Bay on
- * fake GPS so the demo never depends on the laptop's location. WASD / arrows / tap to walk.
- */
-const DEMO_START = { lat: 1.2868, lng: 103.8545 } // Marina Bay waterfront
+/** Demo build: the 3D toy city in explore mode, opening on the Marina Bay waterfront. */
+const DEMO_START = { lat: 1.2868, lng: 103.8545 }
 
 const ui = useUiStore()
 const mapRef = ref(null)
-const following = ref(true)
 const fatal = ref(null)
-const speeds = [1, 6, 20]
-
-// Before QuestMap mounts, so the camera opens on the traveller.
-setFake(true)
-teleport(DEMO_START)
 
 onMounted(() => {
   if (!ui.weather) ui.loadWeather(DEMO_START.lat, DEMO_START.lng)
 })
-
-function backToStart() {
-  teleport(DEMO_START)
-  mapRef.value?.recenter()
-}
 </script>
 
 <template>
@@ -36,8 +21,8 @@ function backToStart() {
     <QuestMap
       v-if="!fatal"
       ref="mapRef"
+      :center="DEMO_START"
       :dark="ui.theme === 'dark'"
-      @follow-change="following = $event"
       @fatal="fatal = $event"
     />
     <div v-else class="fatal p-4 text-center">
@@ -56,9 +41,9 @@ function backToStart() {
 
     <!-- Right rail -->
     <div class="rail">
-      <button class="rail-btn zt-glass" :class="{ active: following }" @click="mapRef?.recenter()" aria-label="Follow traveller"><i class="bi bi-crosshair"></i></button>
+      <button class="rail-btn zt-glass" @click="mapRef?.reset()" aria-label="Back to Marina Bay"><i class="bi bi-house-door"></i></button>
       <button class="rail-btn zt-glass" @click="mapRef?.overview()" aria-label="Zoom out over the city"><i class="bi bi-arrows-fullscreen"></i></button>
-      <button class="rail-btn zt-glass" @click="backToStart" aria-label="Back to Marina Bay"><i class="bi bi-house-door"></i></button>
+      <button class="rail-btn zt-glass" @click="mapRef?.orbit()" aria-label="Rotate around the city"><i class="bi bi-arrow-repeat"></i></button>
     </div>
 
     <!-- Bottom card -->
@@ -66,11 +51,7 @@ function backToStart() {
       <div class="next-card zt-glass">
         <div class="tiny fw-800 text-muted text-uppercase">Explore mode</div>
         <div class="next-title">Singapore</div>
-        <div class="dev-strip tiny mt-2">
-          <!-- <span><i class="bi bi-keyboard"></i> WASD / arrows · tap the map to walk</span> -->
-          <span class="ms-auto">Speed</span>
-          <button v-for="s in speeds" :key="s" class="zt-chip py-0 px-2" :class="{ active: geo.speed === s }" @click="geo.speed = s">{{ s }}×</button>
-        </div>
+        <!-- <div class="hint tiny mt-1"><i class="bi bi-mouse"></i> Drag to pan · scroll to zoom · right-drag (or Ctrl + drag) to tilt and rotate</div> -->
       </div>
     </div>
   </main>
@@ -91,6 +72,5 @@ function backToStart() {
 .bottom-stack { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(var(--zt-nav-h) + 26px); width: min(520px, calc(100% - 24px)); z-index: 10; }
 .next-card { width: 100%; border-radius: 22px; padding: 12px 14px; box-shadow: var(--zt-shadow); }
 .next-title { font-family: var(--zt-font-display); font-size: 1.75rem; line-height: 1; text-transform: uppercase; letter-spacing: 0.02em; margin: 2px 0; }
-.dev-strip { display: flex; align-items: center; gap: 6px; border-top: 2px dashed var(--zt-soft-line); padding-top: 8px; color: var(--zt-muted); }
-.dev-strip .zt-chip { font-size: 0.7rem; border-width: 2px; }
+.hint { color: var(--zt-muted); }
 </style>

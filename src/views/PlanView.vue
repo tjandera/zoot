@@ -10,7 +10,7 @@ import { now, tick } from '../lib/clock.js'
 import BufferBar from '../components/BufferBar.vue'
 import WeatherChip from '../components/WeatherChip.vue'
 
-/** Clock form (Kayra). Demo build: the form and time budget work; building the itinerary is not wired up yet. */
+/** Clock form (Kayra). . */
 const trip = useTripStore()
 const user = useUserStore()
 const ui = useUiStore()
@@ -75,10 +75,10 @@ function submit() {
             <span :class="tooShort ? 'text-danger' : 'text-success'">{{ tooShort ? 'Too tight to leave' : `${fmtDuration(budget.usable_min)} to explore` }}</span>
           </div>
           <BufferBar :window-min="budget.window_min" :exit-min="budget.exit_min" :out-min="Math.max(0, budget.usable_min)" :reentry-min="budget.reentry_min" :safety-min="budget.safety_min" />
-          <p class="tiny text-muted mt-2 mb-0">
+          <!-- <p class="tiny text-muted mt-2 mb-0">
             You must be back at {{ trip.origin.short }} by <b>{{ fmtTime(budget.arriveByMs) }}</b>.
             <template v-if="budget.airport">Airport buffer: {{ budget.reentry_min + budget.safety_min }} min (check-in, immigration and security {{ budget.reentry_min }} + safety {{ budget.safety_min }}).</template>
-          </p>
+          </p> -->
         </div>
       </section>
 

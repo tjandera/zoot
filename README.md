@@ -4,7 +4,7 @@
 
 **Short layover, just Zoot!** This branch is cut down to the live-demo flow only. The full app (itinerary engine, Groq, OneMap routing, passport, check-ins) lives on `main` / `kayra-branch`.
 
-SMU IS216 · Section G3 · Group 4 · Vue 3 + Vite + Bootstrap 5 + Pinia + Supabase + Vercel, with MapLibre GL, Three.js and Turf.
+SMU IS216 · Section G3 · Group 4 · Vue 3 + Vite + Bootstrap 5 + Pinia + Supabase + Vercel, with MapLibre GL (3D buildings).
 
 ## Quick start
 
@@ -21,18 +21,18 @@ Copy `.env.example` to `.env` and add the Supabase URL and anon key. Without the
 2. **Create an account** (`/auth` → Password → *Create an account*). Show the new row in Supabase → **Authentication → Users** and in **Table Editor → profiles** (written by the `on_auth_user_created` trigger).
 3. **Quiz** (`/onboard`): four questions pick a travel style. Refresh the `profiles` row: `style` is now set.
 4. **Itinerary UI** (`/plan`): origin, hours, buffer bar, interests, energy. *Build my quest* shows "coming soon": the itinerary engine is not wired up in this build.
-5. **3D map** (`/map`): tilted toy-city Singapore with the traveller at Marina Bay. Walk with WASD / arrow keys or tap the map; the rail buttons follow, zoom out and return to start.
+5. **3D map** (`/map`): tilted toy-city Singapore opening on Marina Bay. Drag to pan, scroll to zoom, right-drag to tilt/rotate; the rail buttons reset the view, zoom out over the city and orbit.
 
 **Before presenting:** turn off Supabase → Authentication → Email → *Confirm email*, so sign-up logs straight in. Use a fresh email (or delete the old user) so the quiz appears.
 
 ## What's in this branch
 
 ```
-src/views/       LandingView, AuthView, OnboardView (quiz), PlanView, MapView
+src/views/       LandingView, AuthView, OnboardView (quiz), PlanView, MapView, ProfileView (sign out)
 src/stores/      user (session + profile), trip (plan form draft), ui (theme, toasts, weather)
-src/lib/         db/ (Supabase + guest adapters), budget.js (layover buffers), geo.js (fake GPS),
+src/lib/         db/ (Supabase + guest adapters), budget.js (layover buffers),
                  weather.js (Open-Meteo), hours.js, clock.js, config.js
-src/map/ src/gl/ MapLibre toy-city style + Three.js traveller
+src/map/         MapLibre toy-city style with extruded 3D buildings
 supabase/        schema.sql (profiles table + signup trigger are what the demo uses)
 ```
 
